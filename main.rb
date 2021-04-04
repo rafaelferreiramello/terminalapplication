@@ -1,45 +1,63 @@
-# TERMINAL APPLICATION - HOW YOU DOIN?
+require "csv"
+quit = false 
+users = CSV.open("users.csv", "a+")
+user = {}
 
-# login
-# Open external CSV file, login.csv
-# Give user the login option
-# Get user input. Username and Password
-# Check if Username exits on the CSV file, login.csv
-# If username is part of CVC file, login.csv, check if Password match with Username value
-# If password match Username value, "Welcome" and present "Menu"
-# If password does not match Username value, "Password Incorrect, try again", take back to user input
-# If username is not part of CVC file, login.csv, "You don't have a account, sign up or try again" take back to user input
-# Clear old commands before presenting "Menu"
-# Clear old commands before presenting "Menu"
+def login_details 
+    puts "what is your username?"
+    username = gets.chomp.downcase
+    puts "what is your password?"
+    password = gets.chomp.downcase
+    return username, password
+end
 
-# quit = false 
-# while !quit
-#     input = gets.chomp
-#     if input == "quit"
-#         quit = true
-#     end
-# end 
-users_array = []
+def find_user?(username)
+    CSV.open("users.csv", "a+") do |csv|
+        csv.each do |line|
+            if line[0] == username 
+                return line
+            end 
+        end 
+        return false
+    end
+end
 
-until quit
-    puts "options: [login, signup]"
-    # signup 
-    input = gets.chomp
-    if input == "signup"
-        puts "what is your username?"
-        username = gets.chomp
-        puts "what is your password?"
-        password = gets.chomp 
-        user = {}
-        user[:username] = username
-        user[:password] = password 
-        users_array.push(user)
-        File.open("users.csv", "a") {
-            |file| file.append("#{username}, #{password}\n")
-        } 
-    elsif input == "login"
-    end 
-    # login
+def write_csv(username, password) 
+    CSV.open("users.csv", "a") do |csv|
+        csv << [username, password]
+    end
+end
+
+until quit 
+    until user != {}
+        puts "options: [login, signup]"
+        input = gets.chomp
+        if input == "signup"
+            username, password = login_details()
+            username_is_taken = find_user?(username)
+            if username_is_taken == false
+                write_csv(username, password)
+                user[:username] = username
+                user[:password] = password 
+                puts "you are logged in"
+            end
+        elsif input == "login"
+            username, password = login_details()
+            line = find_user?(username)
+            if line [1] == password
+                user[:username] = line[0]
+                user[:password] = line[1]
+                puts "you are logged in"
+            end 
+            if user == {}
+                puts "incorrect information, try again"
+            end
+        end 
+    end
     puts "what would you like to do?"
-    puts "options: quit"
-    input = gets.chomp 
+    puts "option: quit"
+    input = gets.chomp
+    if input == "quit"
+        quit = true
+    end
+end
