@@ -1,8 +1,6 @@
 require "csv"
 require "tty-prompt"
 
-prompt = TTY::Prompt.new
-
 quit = false 
 users = CSV.open("users.csv", "a+")
 user = {}
@@ -60,10 +58,15 @@ until quit
             puts "invalid option, try again"
         end
     end
-    prompt.select("what would you like to do?", %w(Mood Chart Diary))
-    puts "option: quit"
-    input = gets.chomp
-    if input == "quit"
-        quit = true
-    end
+    prompt = TTY::Prompt.new
+    menu = prompt.select("what would you like to do?", %w(Mood Chart Diary Exit))
+        if menu == "Mood"
+            puts "mood"
+        elsif menu == "Chart"
+            puts "chart"
+        elsif menu == "Diary"
+            puts "diary"
+        else menu == "Exit"
+            quit = true
+        end 
 end
