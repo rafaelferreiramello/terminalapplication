@@ -1,5 +1,7 @@
+require "csv"
 require "tty-prompt"
 
+moods = CSV.open("moods.csv", "a")
 mood_feedback =  {
     Cheerful: ["Life is 10% what happens to me and 90% of how I react to it", "Go the extra mile. It’s never crowded there", "Believe you can and you’re halfway there", "Keep your face always toward the sunshine – and shadows will fall behind you", "Make each day your masterpiece"],
     Reflective: ["If you want to lift yourself up, lift up someone else", "You get in life what you have the courage to ask for", "We can’t help everyone, but everyone can help someone", "You must be the change you wish to see in this world", "None of us is as smart as all of us"],
@@ -14,12 +16,27 @@ mood_input = prompt.select("how are you feeling today?", %w(Cheerful Reflective 
 mood = mood_input
     if mood == "Cheerful"
         puts mood_feedback[:Cheerful].sample
+        CSV.open("moods.csv", "a") do |csv|
+            csv << [mood]
+        end
     elsif mood == "Reflective"
         puts mood_feedback[:Reflective].sample
+        CSV.open("moods.csv", "a") do |csv|
+            csv << [mood]
+        end
     elsif mood == "Melancholy"
         puts mood_feedback[:Melancholy].sample
+        CSV.open("moods.csv", "a") do |csv|
+            csv << [mood]
+        end
     elsif mood == "Angry"
         puts mood_feedback[:Angry].sample
+        CSV.open("moods.csv", "a") do |csv|
+            csv << [mood]
+        end
     elsif mood == "Lonely"
         puts mood_feedback[:Lonely].sample
+        CSV.open("moods.csv", "a") do |csv|
+            csv << [mood]
+        end
     end
