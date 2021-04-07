@@ -1,11 +1,22 @@
 require "csv"
 require "tty-prompt"
 
+# CSV.open("users.csv", :headers => true).each do |line|
+#     p line
+# end
+
 quit = false 
-users = CSV.open("users.csv", "a+")
+# users = CSV.open("users.csv", "r").read
+
+# p users
+# # array, index, new_value
+# users[1][2] = "Angry"
+# puts users[1][2]
+# p users
 moods = CSV.open("moods.csv", "a+")
 diary = CSV.open("diary.csv", "a+")
 user = {}
+posts = []
 mood_feedback =  {
     Cheerful: ["Life is 10% what happens to me and 90% of how I react to it", "Go the extra mile. It’s never crowded there", "Believe you can and you’re halfway there", "Keep your face always toward the sunshine – and shadows will fall behind you", "Make each day your masterpiece"],
     Reflective: ["If you want to lift yourself up, lift up someone else", "You get in life what you have the courage to ask for", "We can’t help everyone, but everyone can help someone", "You must be the change you wish to see in this world", "None of us is as smart as all of us"],
@@ -32,12 +43,52 @@ def find_user?(username)
         return false
     end
 end
+# users = []
+# def find_user?(username, users_array)
+#     # CSV.open("users.csv", "a+") do |csv|
+#         users_array.each do |line|
+#             if line[0] == username 
+#                 return line
+#             end 
+#         end 
+#         return false
+#     # end
+# end
+
+# user[:mood] = "cheerful"
+
+# # array, index, new_value
+# index = users.find_index where username is equal to user[:name]
+# users[index] = user
+
+# append, write, read
+
+# CSV.open(path, "a").... 
+#     csv << users
+#       users.each do |user|
+#           csv << [user[:name],user[:password],user[:mood]]
+#       end
+# end
+
+
 
 def write_csv(username, password) 
     CSV.open("users.csv", "a") do |csv|
         csv << [username, password]
     end
 end
+
+def validate_input(message, incorrect_message)
+    input = ""
+    while input == ""
+        print message 
+        input = gets.chomp
+        if input == ""
+            puts incorrect_message
+        end 
+    end
+    return input 
+end 
 
 until quit 
     until user != {}
@@ -72,33 +123,38 @@ until quit
         case menu
         when "Mood"
             mood_input = prompt.select("how are you feeling today?", %w(Cheerful Reflective Melancholy Angry Lonely))
-            mood = mood_input
-            case mood
-                when "Cheerful"
-                    puts mood_feedback[:Cheerful].sample
-                    CSV.open("moods.csv", "a") do |csv|
-                        csv << [mood]
-                    end
-                when "Reflective"
-                    puts mood_feedback[:Reflective].sample
-                    CSV.open("moods.csv", "a") do |csv|
-                        csv << [mood]
-                    end
-                when "Melancholy"
-                    puts mood_feedback[:Melancholy].sample
-                    CSV.open("moods.csv", "a") do |csv|
-                        csv << [mood]
-                    end
-                when "Angry"
-                    puts mood_feedback[:Angry].sample
-                    CSV.open("moods.csv", "a") do |csv|
-                        csv << [mood]
-                    end
-                when "Lonely"
-                    puts mood_feedback[:Lonely].sample
-                    CSV.open("moods.csv", "a") do |csv|
-                        csv << [mood]
-                    end
+            # mood = mood_input
+            mood = mood_input.to_sym
+            puts mood_feedback[mood].sample
+            # case mood
+            #     when "Cheerful"
+            #         puts mood_feedback[:Cheerful].sample
+            #         # CSV.open("moods.csv", "a") do |csv|
+            #         #     csv << [mood]
+            #         # end
+            #     when "Reflective"
+            #         puts mood_feedback[:Reflective].sample
+            #         # CSV.open("moods.csv", "a") do |csv|
+            #         #     csv << [mood]
+            #         # end
+            #     when "Melancholy"
+            #         puts mood_feedback[:Melancholy].sample
+            #         # CSV.open("moods.csv", "a") do |csv|
+            #         #     csv << [mood]
+            #         # end
+            #     when "Angry"
+            #         puts mood_feedback[:Angry].sample
+            #         # CSV.open("moods.csv", "a") do |csv|
+            #         #     csv << [mood]
+            #         # end
+            #     when "Lonely"
+            #         puts mood_feedback[:Lonely].sample
+            #         # CSV.open("moods.csv", "a") do |csv|
+            #         #     csv << [mood]
+            #         # end
+            #     end
+                CSV.open("moods.csv", "a") do |csv|
+                    csv << [mood_input]
                 end
         when "Chart"
             chart_input = prompt.select("What would you like to check?", %w(Week Month))
@@ -116,19 +172,37 @@ until quit
             diary = diary_input
             case diary
             when "New"
+                post = {
+                    date: validate_input("Date(00/00/00):", "You must enter the date"),
+                    message: validate_input("Tell us your thoughts:", "You must enter a message")
+                }
+                posts.push({
+                    date: post[:date],
+                    message: post[:message]
+                })
                 CSV.open("diary.csv", "a") do |csv|
-                puts "Tell us your thoughts:"
-                post = gets.chomp
-                csv << [post]
+                    csv << [post[:date],post[:message]]
                 end
             when "Read"
                 CSV.open("diary.csv", "r") do |csv|
-                    csv.each do |line|
-                        puts line
+                    csv.each do |post|
+                        puts "#{post[0]} you were feeling this: #{post[1]}"
                     end
                 end 
             when "Edit"
-                puts "edit"
+                CSV.open("diary.csv", "a+") do |csv|
+                    csv.each do |post|
+                        puts "#{post[0]}"
+                    end
+                end
+                input = validate_input("Which date would you like to change?", "You must enter a date")
+                index = posts.index {|element| element[:date] == input }
+                post = posts[index]
+                new_post = {
+                    date: validate_input("Date(00/00/00):", "You must enter the date"),
+                    message: validate_input("Tell us your thoughts:", "You must enter a message")
+                }
+                posts[index] = new_post
             when "Delete"
                 puts "delete"
             end

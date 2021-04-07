@@ -1,3 +1,53 @@
-00/00/00,test
-12/04/21,Im sad today
-14/02/21,Im feeling lost
+user-id,date,message,mood
+user1,00/00/00,test, happy
+user1,12/04/21,Im sad today,sad
+user2,14/02/21,Im feeling lost,sad
+user1,06/04/21,Im feeling hopeful,hopeful
+
+
+
+
+
+csv << diary_entry
+
+diary = []
+CSV.open...... do |csv|
+    csv.each {|line|
+        if line[0] == user[:id]
+            # diary.push(line) # line is a array
+            # diary.push({
+            #    date: line[1],
+            #    message: line[2]
+            # })
+        end
+    }
+end
+
+mood_list = []
+CSV.open...... do |csv|
+    csv.each {|line|
+        if line[0] == user[:id]
+            # mood_list.push(line) # line is a array
+            # mood_list.push({
+            #    date: line[1],
+            #    mood: line[3]
+            # })
+        end
+    }
+end
+
+diary.each do |entry| #entry is an array
+    # "date, I'm sad today"
+    puts entry[1], entry[2]
+end
+
+
+diary.each do |entry| #entry is a hash
+    # "date, I'm sad today"
+    puts entry[:date], entry[:message]
+end
+
+# graph daily mood
+mood_list.each do |entry|
+    puts entry[:mood]
+end12/08/21, Im feeling great
