@@ -13,9 +13,12 @@ quit = false
 # users[1][2] = "Angry"
 # puts users[1][2]
 # p users
+
+prompt = TTY::Prompt.new
 moods = CSV.open("moods.csv", "a+")
 diary = CSV.open("diary.csv", "a+")
 user = {}
+charts = {}
 posts = []
 mood_feedback =  {
     Cheerful: ["Life is 10% what happens to me and 90% of how I react to it", "Go the extra mile. It’s never crowded there", "Believe you can and you’re halfway there", "Keep your face always toward the sunshine – and shadows will fall behind you", "Make each day your masterpiece"],
@@ -118,7 +121,6 @@ until quit
             puts "invalid option, try again"
         end
     end
-    prompt = TTY::Prompt.new
     menu = prompt.select("what would you like to do?", %w(Mood Chart Diary Exit))
         case menu
         when "Mood"
@@ -157,16 +159,32 @@ until quit
                     csv << [mood_input]
                 end
         when "Chart"
-            chart_input = prompt.select("What would you like to check?", %w(Week Month))
+            chart_input = prompt.select("What would you like to check?", %w(Top1 Top3))
             chart = chart_input
-            case chart
-            when "Week"
-                CSV.open("moods.csv", "r") do |csv|
-                    puts csv.each
+                case chart
+                when "Top1"
+                    CSV.open("moods.csv", "r") do |csv|
+                        csv.each do |mood|
+                            charts[mood] = 0 unless charts.include?(mood)
+                            charts[mood] += 1
+                        end
+                        new_chart = []
+                        new_chart = charts.sort_by {|k,v| v}.reverse
+                        puts "Your most frequently mood is #{new_chart[0][0][0]} and you told us that you were feeling like this #{new_chart[0][1]} times"
+                    end
+                when "Top3" 
+                    CSV.open("moods.csv", "r") do |csv|
+                        csv.each do |mood|
+                            charts[mood] = 0 unless charts.include?(mood)
+                            charts[mood] += 1
+                        end
+                        new_chart = []
+                        new_chart = charts.sort_by {|k,v| v}.reverse
+                        puts "Your most frequently mood is #{new_chart[0][0][0]} and you told us that you were feeling like this #{new_chart[0][1]} times"
+                        puts "Your second most frequently mood is #{new_chart[1][0][0]} and you told us that you were feeling like this #{new_chart[1][1]} times"
+                        puts "Your third most frequently mood is #{new_chart[2][0][0]} and you told us that you were feeling like this #{new_chart[2][1]} times"
+                    end
                 end
-            when "Month" 
-                puts "month"
-            end
         when "Diary"
             diary_input = prompt.select("What would you like to do?", %w(New Read Edit Delete))
             diary = diary_input
