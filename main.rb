@@ -156,7 +156,7 @@ until quit
             #         # end
             #     end
                 CSV.open("moods.csv", "a") do |csv|
-                    csv << [mood_input]
+                    csv << [user[:username],mood_input]
                 end
         when "Chart"
             chart_input = prompt.select("What would you like to check?", %w(Top1 Top3))
@@ -170,7 +170,8 @@ until quit
                         end
                         new_chart = []
                         new_chart = charts.sort_by {|k,v| v}.reverse
-                        puts "Your most frequently mood is #{new_chart[0][0][0]} and you told us that you were feeling like this #{new_chart[0][1]} times"
+                        p new_chart
+                        puts "Your most frequently mood is #{new_chart[0][0][1]} and you told us that you were feeling like this #{new_chart[0][1]} times"
                     end
                 when "Top3" 
                     CSV.open("moods.csv", "r") do |csv|
@@ -180,9 +181,9 @@ until quit
                         end
                         new_chart = []
                         new_chart = charts.sort_by {|k,v| v}.reverse
-                        puts "Your most frequently mood is #{new_chart[0][0][0]} and you told us that you were feeling like this #{new_chart[0][1]} times"
-                        puts "Your second most frequently mood is #{new_chart[1][0][0]} and you told us that you were feeling like this #{new_chart[1][1]} times"
-                        puts "Your third most frequently mood is #{new_chart[2][0][0]} and you told us that you were feeling like this #{new_chart[2][1]} times"
+                        puts "Your most frequently mood is #{new_chart[0][0][1]} and you told us that you were feeling like this #{new_chart[0][1]} times"
+                        puts "Your second most frequently mood is #{new_chart[1][0][1]} and you told us that you were feeling like this #{new_chart[1][1]} times"
+                        puts "Your third most frequently mood is #{new_chart[2][0][1]} and you told us that you were feeling like this #{new_chart[2][1]} times"
                     end
                 end
         when "Diary"
@@ -191,26 +192,28 @@ until quit
             case diary
             when "New"
                 post = {
+                    user: user[:username],
                     date: validate_input("Date(00/00/00):", "You must enter the date"),
                     message: validate_input("Tell us your thoughts:", "You must enter a message")
                 }
                 posts.push({
+                    user: user[:username],
                     date: post[:date],
                     message: post[:message]
                 })
                 CSV.open("diary.csv", "a") do |csv|
-                    csv << [post[:date],post[:message]]
+                    csv << [user[:username],post[:date],post[:message]]
                 end
             when "Read"
                 CSV.open("diary.csv", "r") do |csv|
                     csv.each do |post|
-                        puts "#{post[0]} you were feeling this: #{post[1]}"
+                        puts "#{post[1]} you were feeling this: #{post[2]}"
                     end
                 end 
             when "Edit"
                 CSV.open("diary.csv", "a+") do |csv|
                     csv.each do |post|
-                        puts "#{post[0]}"
+                        puts "#{post[1]}"
                     end
                 end
                 input = validate_input("Which date would you like to change?", "You must enter a date")
@@ -222,9 +225,75 @@ until quit
                 }
                 posts[index] = new_post
             when "Delete"
-                puts "delete"
+                CSV.open("diary.csv", "a+") do |csv|
+                    csv.each do |post|
+                        puts "#{post[1]}"
+                    end
+                end
+                input = validate_input("Which date would you like to delete?", "You must enter a date")
+                index = posts.index {|element| element[:date] == input }
+                posts.delete_at(index)
             end
         when "Exit"
             quit = true
-        end 
+        end
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# csv << diary_entry
+
+# diary = []
+# CSV.open...... do |csv|
+#     csv.each {|line|
+#         if line[0] == user[:id]
+#             # diary.push(line) # line is a array
+#             # diary.push({
+#             #    date: line[1],
+#             #    message: line[2]
+#             # })
+#         end
+#     }
+# end
+
+# mood_list = []
+# CSV.open...... do |csv|
+#     csv.each {|line|
+#         if line[0] == user[:id]
+#             # mood_list.push(line) # line is a array
+#             # mood_list.push({
+#             #    date: line[1],
+#             #    mood: line[3]
+#             # })
+#         end
+#     }
+# end
+
+# diary.each do |entry| #entry is an array
+#     # "date, I'm sad today"
+#     puts entry[1], entry[2]
+# end
+
+
+# diary.each do |entry| #entry is a hash
+#     # "date, I'm sad today"
+#     puts entry[:date], entry[:message]
+# end
+
+# # graph daily mood
+# mood_list.each do |entry|
+#     puts entry[:mood]
+# end12/08/21, Im feeling great
