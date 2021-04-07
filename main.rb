@@ -163,21 +163,25 @@ until quit
             chart = chart_input
                 case chart
                 when "Top1"
+                    
                     CSV.open("moods.csv", "r") do |csv|
                         csv.each do |mood|
-                            charts[mood] = 0 unless charts.include?(mood)
-                            charts[mood] += 1
+                            if mood[0] == user[:username]
+                                charts[mood] = 0 unless charts.include?(mood)
+                                charts[mood] += 1
+                            end
                         end
                         new_chart = []
                         new_chart = charts.sort_by {|k,v| v}.reverse
-                        p new_chart
                         puts "Your most frequently mood is #{new_chart[0][0][1]} and you told us that you were feeling like this #{new_chart[0][1]} times"
                     end
                 when "Top3" 
                     CSV.open("moods.csv", "r") do |csv|
                         csv.each do |mood|
-                            charts[mood] = 0 unless charts.include?(mood)
-                            charts[mood] += 1
+                            if mood[0] == user[:username]
+                                charts[mood] = 0 unless charts.include?(mood)
+                                charts[mood] += 1
+                            end
                         end
                         new_chart = []
                         new_chart = charts.sort_by {|k,v| v}.reverse
