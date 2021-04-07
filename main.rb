@@ -211,13 +211,17 @@ until quit
             when "Read"
                 CSV.open("diary.csv", "r") do |csv|
                     csv.each do |post|
-                        puts "#{post[1]} you were feeling this: #{post[2]}"
+                        if post[0] == user[:username]
+                            puts "#{post[1]} you were feeling this: #{post[2]}"
+                        end
                     end
                 end 
             when "Edit"
                 CSV.open("diary.csv", "a+") do |csv|
                     csv.each do |post|
-                        puts "#{post[1]}"
+                        if post[0] == user[:username]
+                            puts "#{post[1]}"
+                        end
                     end
                 end
                 input = validate_input("Which date would you like to change?", "You must enter a date")
@@ -231,7 +235,9 @@ until quit
             when "Delete"
                 CSV.open("diary.csv", "a+") do |csv|
                     csv.each do |post|
-                        puts "#{post[1]}"
+                        if post[0] == user[:username]
+                            puts "#{post[1]}"
+                        end
                     end
                 end
                 input = validate_input("Which date would you like to delete?", "You must enter a date")
