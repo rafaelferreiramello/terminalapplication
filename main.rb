@@ -5,8 +5,6 @@ quit = false
 
 prompt = TTY::Prompt.new
 
-user = {}
-posts = []
 mood_feedback =  {
     Cheerful: ["Life is 10% what happens to me and 90% of how I react to it", "Go the extra mile. It’s never crowded there", "Believe you can and you’re halfway there", "Keep your face always toward the sunshine – and shadows will fall behind you", "Make each day your masterpiece"],
     Reflective: ["If you want to lift yourself up, lift up someone else", "You get in life what you have the courage to ask for", "We can’t help everyone, but everyone can help someone", "You must be the change you wish to see in this world", "None of us is as smart as all of us"],
@@ -52,6 +50,7 @@ def validate_input(message, incorrect_message)
     return input 
 end 
 
+user = {}
 until quit 
     line = find_user?("user1") # DEBUG 
     user[:username] = line[0] # DEBUG
@@ -85,8 +84,7 @@ until quit
             puts "invalid option, try again"
         end
     end
-    # menu = prompt.select("what would you like to do?", %w(Mood Chart Diary Exit))
-    menu = "Chart" # DEBUG
+    menu = prompt.select("what would you like to do?", %w(Mood Chart Diary Exit))
     case menu
     when "Mood"
         mood_input = prompt.select("how are you feeling today?", %w(Cheerful Reflective Melancholy Angry Lonely))
@@ -96,10 +94,10 @@ until quit
             csv << [user[:username],mood_input]
         end
     when "Chart"
-        chart_input = prompt.select("What would you like to check?", %w(Top1 Top3))
+        chart_input = prompt.select("What would you like to check?", %w(Top1 Top3 Back))
         charts = {}
         moods = CSV.open("moods.csv", "r").read
-        moods.each do |mood| #[username, mood]
+        moods.each do |mood| 
             if mood[0] == user[:username]
                 charts[mood[1]] = 0 unless charts.include?(mood[1])
                 charts[mood[1]] += 1
@@ -108,29 +106,39 @@ until quit
         new_chart = charts.sort_by {|k,v| v}.reverse
         case chart_input
         when "Top1"
-            p new_chart
-            puts "Your most frequently mood is #{new_chart[0][0]} and you told us that you were feeling like this #{new_chart[0][1]} times"
+            begin 
+                puts "Your most frequently mood is #{new_chart[0][0]} and you told us that you were feeling like this #{new_chart[0][1]} time(s)"
+            rescue
+                puts "You don't have enough inputs to create a Top1, share more how you are feeling and try again"
+            end        
         when "Top3" 
-            p new_chart
-            puts "Your most frequently mood is #{new_chart[0][0]} and you told us that you were feeling like this #{new_chart[0][1]} times"
-            puts "Your second most frequently mood is #{new_chart[1][0]} and you told us that you were feeling like this #{new_chart[1][1]} times"
-            puts "Your third most frequently mood is #{new_chart[2][0]} and you told us that you were feeling like this #{new_chart[2][1]} times"
+            begin 
+                puts "Your most frequently mood is #{new_chart[0][0]} and you told us that you were feeling like this #{new_chart[0][1]} time(s)"
+                puts "Your second most frequently mood is #{new_chart[1][0]} and you told us that you were feeling like this #{new_chart[1][1]} time(s)"
+                puts "Your third most frequently mood is #{new_chart[2][0]} and you told us that you were feeling like this #{new_chart[2][1]} time(s)"
+            rescue
+                puts "You don't have enough inputs to create a Top3, share more how you are feeling and try again"
+            end
+        when "Back"
         end
     when "Diary"
-        diary_input = prompt.select("What would you like to do?", %w(New Read Edit Delete))
-        diary = diary_input
-        case diary
+        posts = CSV.open("diary.csv", "r").read
+        time = Time.new
+        time = "#{time.day}/#{time.month}/#{time.year}"
+        diary_input = prompt.select("What would you like to do?", %w(New Read Edit Delete Back))
+        case diary_input
         when "New"
             post = {
                 user: user[:username],
-                date: validate_input("Date(00/00/00):", "You must enter the date"),
+                date: time,
                 message: validate_input("Tell us your thoughts:", "You must enter a message")
             }
-            posts.push({
-                user: user[:username],
-                date: post[:date],
-                message: post[:message]
-            })
+            posts.push([
+                user[:username],
+                post[:date],
+                post[:message]
+            ])
+            p posts
             CSV.open("diary.csv", "a") do |csv|
                 csv << [user[:username],post[:date],post[:message]]
             end
@@ -143,24 +151,50 @@ until quit
                 end
             end 
         when "Edit"
-            CSV.open("diary.csv", "a+") do |csv|
+            # get all user1 entries
+            posts = []
+            all_posts = []
+            CSV.open("diary.csv", "r") do |csv|
                 csv.each do |post|
                     if post[0] == user[:username]
-                        puts "#{post[1]}"
                         posts.push(post)
+                    else 
+                        all_posts.push(post)
                     end
                 end
             end
-            p posts
-            input = validate_input("Which date would you like to change?", "You must enter a date")
-            index = posts.index {|element| element[1] == input }
-            post = posts[index]
-            new_post = {
-                date: validate_input("Date(00/00/00):", "You must enter the date"),
-                message: validate_input("Tell us your thoughts:", "You must enter a message")
-            }
-            posts[index] = new_post
-            p new_post
+            # display date entries
+            posts.each_with_index do |post, index|
+                puts "#{index}. #{post[1]}"
+            end
+            puts "Could you please input the number you wish to update:"
+            update_post = gets.chomp
+            
+            # ask which one to edit
+            "0"
+            "im feeling better"
+            # edit data
+            posts[0][2] = "im feeling better"
+
+            all_posts.concat(posts)
+
+            p all_posts
+
+            CSV.open("diary.csv", "w") do |csv|
+                all_posts.each do |post|
+                    csv << [post[0],post[1],post[2]]
+                end
+            end
+
+            # input = validate_input("Which date would you like to change?", "You must enter a date")
+            # index = posts.index {|element| element[1] == input }
+            # post = posts[index]
+            # new_post = {
+            #     date: validate_input("Date(00/00/00):", "You must enter the date"),
+            #     message: validate_input("Tell us your thoughts:", "You must enter a message")
+            # }
+            # posts[index] = new_post
+            # p new_post
         when "Delete"
             CSV.open("diary.csv", "a+") do |csv|
                 csv.each do |post|
@@ -174,6 +208,7 @@ until quit
             input = validate_input("Which date would you like to delete?", "You must enter a date")
             index = posts.index {|element| element[1] == input }
             posts.delete_at(index)
+        when "Back"
         end
     when "Exit"
         quit = true
