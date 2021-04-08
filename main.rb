@@ -1,24 +1,12 @@
 require "csv"
 require "tty-prompt"
 
-# CSV.open("users.csv", :headers => true).each do |line|
-#     p line
-# end
-
 quit = false 
-# users = CSV.open("users.csv", "r").read
-
-# p users
-# # array, index, new_value
-# users[1][2] = "Angry"
-# puts users[1][2]
-# p users
 
 prompt = TTY::Prompt.new
-moods = CSV.open("moods.csv", "a+")
-diary = CSV.open("diary.csv", "a+")
 user = {}
 charts = {}
+charts_top3 = {}
 posts = []
 mood_feedback =  {
     Cheerful: ["Life is 10% what happens to me and 90% of how I react to it", "Go the extra mile. It’s never crowded there", "Believe you can and you’re halfway there", "Keep your face always toward the sunshine – and shadows will fall behind you", "Make each day your masterpiece"],
@@ -46,34 +34,6 @@ def find_user?(username)
         return false
     end
 end
-# users = []
-# def find_user?(username, users_array)
-#     # CSV.open("users.csv", "a+") do |csv|
-#         users_array.each do |line|
-#             if line[0] == username 
-#                 return line
-#             end 
-#         end 
-#         return false
-#     # end
-# end
-
-# user[:mood] = "cheerful"
-
-# # array, index, new_value
-# index = users.find_index where username is equal to user[:name]
-# users[index] = user
-
-# append, write, read
-
-# CSV.open(path, "a").... 
-#     csv << users
-#       users.each do |user|
-#           csv << [user[:name],user[:password],user[:mood]]
-#       end
-# end
-
-
 
 def write_csv(username, password) 
     CSV.open("users.csv", "a") do |csv|
@@ -125,36 +85,8 @@ until quit
         case menu
         when "Mood"
             mood_input = prompt.select("how are you feeling today?", %w(Cheerful Reflective Melancholy Angry Lonely))
-            # mood = mood_input
             mood = mood_input.to_sym
             puts mood_feedback[mood].sample
-            # case mood
-            #     when "Cheerful"
-            #         puts mood_feedback[:Cheerful].sample
-            #         # CSV.open("moods.csv", "a") do |csv|
-            #         #     csv << [mood]
-            #         # end
-            #     when "Reflective"
-            #         puts mood_feedback[:Reflective].sample
-            #         # CSV.open("moods.csv", "a") do |csv|
-            #         #     csv << [mood]
-            #         # end
-            #     when "Melancholy"
-            #         puts mood_feedback[:Melancholy].sample
-            #         # CSV.open("moods.csv", "a") do |csv|
-            #         #     csv << [mood]
-            #         # end
-            #     when "Angry"
-            #         puts mood_feedback[:Angry].sample
-            #         # CSV.open("moods.csv", "a") do |csv|
-            #         #     csv << [mood]
-            #         # end
-            #     when "Lonely"
-            #         puts mood_feedback[:Lonely].sample
-            #         # CSV.open("moods.csv", "a") do |csv|
-            #         #     csv << [mood]
-            #         # end
-            #     end
                 CSV.open("moods.csv", "a") do |csv|
                     csv << [user[:username],mood_input]
                 end
@@ -163,7 +95,6 @@ until quit
             chart = chart_input
                 case chart
                 when "Top1"
-                    
                     CSV.open("moods.csv", "r") do |csv|
                         csv.each do |mood|
                             if mood[0] == user[:username]
@@ -179,12 +110,12 @@ until quit
                     CSV.open("moods.csv", "r") do |csv|
                         csv.each do |mood|
                             if mood[0] == user[:username]
-                                charts[mood] = 0 unless charts.include?(mood)
-                                charts[mood] += 1
+                                charts_top3[mood] = 0 unless charts_top3.include?(mood)
+                                charts_top3[mood] += 1
                             end
                         end
                         new_chart = []
-                        new_chart = charts.sort_by {|k,v| v}.reverse
+                        new_chart = charts_top3.sort_by {|k,v| v}.reverse
                         puts "Your most frequently mood is #{new_chart[0][0][1]} and you told us that you were feeling like this #{new_chart[0][1]} times"
                         puts "Your second most frequently mood is #{new_chart[1][0][1]} and you told us that you were feeling like this #{new_chart[1][1]} times"
                         puts "Your third most frequently mood is #{new_chart[2][0][1]} and you told us that you were feeling like this #{new_chart[2][1]} times"
@@ -233,7 +164,7 @@ until quit
                 }
                 posts[index] = new_post
             when "Delete"
-                CSV.open("diary.csv", "a+") do |csv|
+                CSV.open("diary.csv", "r") do |csv|
                     csv.each do |post|
                         if post[0] == user[:username]
                             puts "#{post[1]}"
@@ -248,6 +179,13 @@ until quit
             quit = true
         end
 end
+
+CSV.open("diary.csv", "w") do |csv|
+    posts.each do |post|
+        csv << [user[:username],post[:date],post[:message]]
+    end
+end
+
 
 
 
@@ -307,3 +245,55 @@ end
 # mood_list.each do |entry|
 #     puts entry[:mood]
 # end12/08/21, Im feeling great
+
+
+
+
+
+
+# users = []
+# def find_user?(username, users_array)
+#     # CSV.open("users.csv", "a+") do |csv|
+#         users_array.each do |line|
+#             if line[0] == username 
+#                 return line
+#             end 
+#         end 
+#         return false
+#     # end
+# end
+
+# user[:mood] = "cheerful"
+
+# # array, index, new_value
+# index = users.find_index where username is equal to user[:name]
+# users[index] = user
+
+# append, write, read
+
+# CSV.open(path, "a").... 
+#     csv << users
+#       users.each do |user|
+#           csv << [user[:name],user[:password],user[:mood]]
+#       end
+# end
+
+
+
+
+
+
+# users = CSV.open("users.csv", "r").read
+
+# p users
+# # array, index, new_value
+# users[1][2] = "Angry"
+# puts users[1][2]
+# p users
+
+
+
+
+# CSV.open("users.csv", :headers => true).each do |line|
+#     p line
+# end
