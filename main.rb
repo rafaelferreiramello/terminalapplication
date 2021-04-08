@@ -165,20 +165,24 @@ until quit
             end
             # display date entries
             posts.each_with_index do |post, index|
-                puts "#{index}. #{post[1]}"
+                puts "#{index}. #{post[1]} - #{post[2]}"
             end
             puts "Could you please input the number you wish to update:"
-            update_post = gets.chomp
+            update_post = gets.chomp.to_i
+            post = {
+                user: user[:username],
+                date: posts[update_post][1],
+                message: validate_input("Tell us your thoughts:", "You must enter a message")
+            }
+            posts.push([
+                user[:username],
+                post[:date],
+                post[:message]
+            ])
+
+            posts.delete_at(update_post)
             
-            # ask which one to edit
-            "0"
-            "im feeling better"
-            # edit data
-            posts[0][2] = "im feeling better"
-
             all_posts.concat(posts)
-
-            p all_posts
 
             CSV.open("diary.csv", "w") do |csv|
                 all_posts.each do |post|
@@ -186,28 +190,34 @@ until quit
                 end
             end
 
-            # input = validate_input("Which date would you like to change?", "You must enter a date")
-            # index = posts.index {|element| element[1] == input }
-            # post = posts[index]
-            # new_post = {
-            #     date: validate_input("Date(00/00/00):", "You must enter the date"),
-            #     message: validate_input("Tell us your thoughts:", "You must enter a message")
-            # }
-            # posts[index] = new_post
-            # p new_post
         when "Delete"
-            CSV.open("diary.csv", "a+") do |csv|
+            posts = []
+            all_posts = []
+            CSV.open("diary.csv", "r") do |csv|
                 csv.each do |post|
                     if post[0] == user[:username]
-                        puts "#{post[1]}"
                         posts.push(post)
+                    else 
+                        all_posts.push(post)
                     end
                 end
             end
-            # p posts
-            input = validate_input("Which date would you like to delete?", "You must enter a date")
-            index = posts.index {|element| element[1] == input }
-            posts.delete_at(index)
+            
+            posts.each_with_index do |post, index|
+                puts "#{index}. #{post[1]} - #{post[2]}"
+            end
+
+            puts "Could you please input the number you wish to delete:"
+            update_post = gets.chomp.to_i
+            posts.delete_at(update_post)
+
+            all_posts.concat(posts)
+
+            CSV.open("diary.csv", "w") do |csv|
+                all_posts.each do |post|
+                    csv << [post[0],post[1],post[2]]
+                end
+            end
         when "Back"
         end
     when "Exit"
@@ -215,11 +225,6 @@ until quit
     end
 end
 
-# CSV.open("diary.csv", "w") do |csv|
-#     posts.each do |post|
-#         csv << [user[:username],post[:date],post[:message]]
-#     end
-# end
 
 
 
