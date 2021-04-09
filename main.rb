@@ -1,7 +1,7 @@
 require "csv"
 require "tty-prompt"
-require "colorize"
 require "tty-table"
+require "colorize"
 
 quit = false 
 
@@ -121,13 +121,14 @@ until quit
             rescue
                 puts "You don't have enough inputs to create a Top3, share more how you are feeling and try again".colorize(:red)
             end
-        when "Table"
-            table = TTY::Table.new(["header1","header2"])
-            table << new_chart
+        # when "Table"
+        #     p new_chart
+        #     table = TTY::Table.new(["header1","header2"], ["a1", "a1"])
+        #     puts table.render(:basic)
         when "Back"
         end
     when "Diary"
-        posts = CSV.open("diary.csv", "r").read
+        read_posts = CSV.open("diary.csv", "r").read
         time = Time.new
         time = "#{time.day}/#{time.month}/#{time.year}"
         diary_input = prompt.select("What would you like to do?", %w(New Read Edit Delete Back))
@@ -147,25 +148,21 @@ until quit
                 csv << [user[:username],post[:date],post[:message]]
             end
         when "Read"
-            CSV.open("diary.csv", "r") do |csv|
-                csv.each do |post|
+            read_posts.each do |post|
                     if post[0] == user[:username]
                         puts "#{post[1]} you were feeling this: #{post[2]}"
                     end
-                end
             end 
         when "Edit"
             # get all user1 entries
             posts = []
             all_posts = []
-            CSV.open("diary.csv", "r") do |csv|
-                csv.each do |post|
+            read_posts.each do |post|
                     if post[0] == user[:username]
                         posts.push(post)
                     else 
                         all_posts.push(post)
                     end
-                end
             end
             # display date entries
             posts.each_with_index do |post, index|
@@ -197,14 +194,12 @@ until quit
         when "Delete"
             posts = []
             all_posts = []
-            CSV.open("diary.csv", "r") do |csv|
-                csv.each do |post|
+            read_posts.each do |post|
                     if post[0] == user[:username]
                         posts.push(post)
                     else 
                         all_posts.push(post)
                     end
-                end
             end
             
             posts.each_with_index do |post, index|
