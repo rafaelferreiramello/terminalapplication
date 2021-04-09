@@ -4,6 +4,7 @@ require "tty-table"
 require "tty-font"
 require "colorize"
 require "pastel"
+require_relative "./methods.rb"
 
 quit = false 
 
@@ -16,43 +17,6 @@ mood_feedback =  {
     Angry: ["Nothing ever gets easier. You just get stronger", "I will allow life’s changes to make me better, not bitter", "Nobody can hurt me without my permission", "The best revenge is massive success", "The question isn’t who is going to let me; it’s who is going to stop me"],
     Lonely: ["The strongest men are the most alone", "Loneliness adds beauty to life. It puts a special burn on sunsets and makes night air smell better", "The more powerful and original a mind, the more it will incline towards the religion of solitude", "If you learn to really sit with loneliness and embrace it for the gift that it is… an opportunity to get to know you", "The soul that sees beauty may sometimes walk alone"]
 }
-
-def login_details 
-    puts "what is your username?"
-    username = gets.chomp
-    puts "what is your password?"
-    password = gets.chomp
-    return username, password
-end
-
-def find_user?(username)
-    CSV.open("users.csv", "a+") do |csv|
-        csv.each do |line|
-            if line[0] == username 
-                return line
-            end 
-        end 
-        return false
-    end
-end
-
-def write_csv(username, password) 
-    CSV.open("users.csv", "a") do |csv|
-        csv << [username, password]
-    end
-end
-
-def validate_input(message, incorrect_message)
-    input = ""
-    while input == ""
-        print message 
-        input = gets.chomp
-        if input == ""
-            puts incorrect_message
-        end 
-    end
-    return input 
-end 
 
 font = TTY::Font.new(:doom)
 pastel = Pastel.new
@@ -144,7 +108,7 @@ until quit
                 date: time,
                 message: validate_input("Tell us your thoughts:", "You must enter a message")
             }
-            posts.push([
+            read_posts.push([
                 user[:username],
                 post[:date],
                 post[:message]
