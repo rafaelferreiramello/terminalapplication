@@ -6,25 +6,26 @@ require "colorize"
 require "pastel"
 require_relative "./methods.rb"
 
+
+if ARGV.include? "--help"
+    puts "Here is how you use How You Doing?:"
+    puts "Choose between login or signup"
+    puts "Add your username and password"
+    puts "Choose between mood, chart or diary"
+    puts "For mood, select how you are feeling today and get inspired"
+    puts "For chart, select between Top1, Top3 or Table"
+    puts "For diary, select between New, Read, Edit or Delete"
+    puts "To exit the application choose Exit on home menu"
+    puts "Any question, hit us on Github: github.com/howyoudoing"
+    puts "Thank you for your support!"
+    exit
+end
+
+clear_and_title
+
 quit = false 
-
-mood_feedback =  {
-    Cheerful: ["Life is 10% what happens to me and 90% of how I react to it", "Go the extra mile. It’s never crowded there", "Believe you can and you’re halfway there", "Keep your face always toward the sunshine – and shadows will fall behind you", "Make each day your masterpiece"],
-    Reflective: ["If you want to lift yourself up, lift up someone else", "You get in life what you have the courage to ask for", "We can’t help everyone, but everyone can help someone", "You must be the change you wish to see in this world", "None of us is as smart as all of us"],
-    Melancholy: ["I can’t change the direction of the wind, but I can adjust my sails to always reach my destination", "Begin anywhere", "Whenever you find yourself doubting how far you can go, just remember how far you have come", "Do not wait; the time will never be just right", "Start where you are. Use what you have. Do what you can"],
-    Angry: ["Nothing ever gets easier. You just get stronger", "I will allow life’s changes to make me better, not bitter", "Nobody can hurt me without my permission", "The best revenge is massive success", "The question isn’t who is going to let me; it’s who is going to stop me"],
-    Lonely: ["The strongest men are the most alone", "Loneliness adds beauty to life. It puts a special burn on sunsets and makes night air smell better", "The more powerful and original a mind, the more it will incline towards the religion of solitude", "If you learn to really sit with loneliness and embrace it for the gift that it is… an opportunity to get to know you", "The soul that sees beauty may sometimes walk alone"]
-}
-
-font = TTY::Font.new(:doom)
-pastel = Pastel.new
-puts pastel.cyan(font.write("HOW YOU DOIN?", letter_spacing: 2))
-
 user = {}
 until quit 
-    line = find_user?("user1") # DEBUG 
-    user[:username] = line[0] # DEBUG
-    user[:password] = line[1] # DEBUG
     until user != {}
         puts "Login or Signup?"
         input = gets.chomp.downcase
@@ -35,7 +36,11 @@ until quit
                 write_csv(username, password)
                 user[:username] = username
                 user[:password] = password 
-                puts "you are logged in"
+                clear_and_title
+                puts "You are logged in".cyan
+            else
+                clear_and_title
+                puts "Username taken, try again".red
             end
         elsif input == "login"
             username, password = login_details()
@@ -44,27 +49,32 @@ until quit
                 if line [1] == password
                     user[:username] = line[0]
                     user[:password] = line[1]
-                    puts "you are logged in"
+                    clear_and_title
+                    puts "You are logged in".cyan
                 end 
             end
             if user == {}
-                puts "incorrect information, try again"
+                clear_and_title
+                puts "Incorrect information, try again".red
             end
         else
-            puts "invalid option, try again"
+            clear_and_title
+            puts "Invalid option, try again".red
         end
     end
     prompt = TTY::Prompt.new
-    menu = prompt.select("what would you like to do?", %w(Mood Chart Diary Exit))
+    menu = prompt.select("What would you like to do?", %w(Mood Chart Diary Exit))
     case menu
     when "Mood"
-        mood_input = prompt.select("how are you feeling today?", %w(Cheerful Reflective Melancholy Angry Lonely))
+        clear_and_title
+        mood_input = prompt.select("How are you feeling today?", %w(Cheerful Reflective Melancholy Angry Lonely))
         mood = mood_input.to_sym
-        puts mood_feedback[mood].sample.colorize(:magenta)
+        puts feedback_moods[mood].sample.colorize(:magenta)
         CSV.open("moods.csv", "a") do |csv|
             csv << [user[:username],mood_input]
         end
     when "Chart"
+        clear_and_title
         chart_input = prompt.select("What would you like to check?", %w(Top1 Top3 Table Back))
         charts = {}
         moods = CSV.open("moods.csv", "r").read
@@ -96,6 +106,7 @@ until quit
         when "Back"
         end
     when "Diary"
+        clear_and_title
         read_posts = CSV.open("diary.csv", "r").read
         time = Time.new
         time = "#{time.day}/#{time.month}/#{time.year}"
@@ -160,7 +171,7 @@ until quit
                     end
                 end
             rescue
-                puts "Invalid entry, try again"
+                puts "Invalid entry, try again".red
             end
         when "Delete"
             posts = []
@@ -189,6 +200,7 @@ until quit
                 end
             end
         when "Back"
+            clear_and_title
         end
     when "Exit"
         quit = true
