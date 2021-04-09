@@ -1,7 +1,9 @@
 require "csv"
 require "tty-prompt"
 require "tty-table"
+require "tty-font"
 require "colorize"
+require "pastel"
 
 quit = false 
 
@@ -51,6 +53,10 @@ def validate_input(message, incorrect_message)
     end
     return input 
 end 
+
+font = TTY::Font.new(:doom)
+pastel = Pastel.new
+puts pastel.cyan(font.write("HOW YOU DOIN?", letter_spacing: 2))
 
 user = {}
 until quit 
@@ -109,21 +115,21 @@ until quit
         case chart_input
         when "Top1"
             begin 
-                puts "Your most frequently mood is #{new_chart[0][0]} and you told us that you were feeling like this #{new_chart[0][1]} time(s)".colorize(:light_blue)
+                puts "Your most frequently mood is #{new_chart[0][0]} and you told us that you were feeling like this #{new_chart[0][1]} time(s)".light_blue
             rescue
-                puts "You don't have enough inputs to create a Top1, share more how you are feeling and try again".colorize(:red)
+                puts "You don't have enough inputs to create a Top1, share more how you are feeling and try again".red
             end        
         when "Top3" 
             begin 
-                puts "Your most frequently mood is #{new_chart[0][0]} and you told us that you were feeling like this #{new_chart[0][1]} time(s)".colorize(:cyan)
-                puts "Your second most frequently mood is #{new_chart[1][0]} and you told us that you were feeling like this #{new_chart[1][1]} time(s)".colorize(:light_blue)
-                puts "Your third most frequently mood is #{new_chart[2][0]} and you told us that you were feeling like this #{new_chart[2][1]} time(s)".colorize(:blue)
+                puts "Your most frequently mood is #{new_chart[0][0]} and you told us that you were feeling like this #{new_chart[0][1]} time(s)".cyan
+                puts "Your second most frequently mood is #{new_chart[1][0]} and you told us that you were feeling like this #{new_chart[1][1]} time(s)".light_blue
+                puts "Your third most frequently mood is #{new_chart[2][0]} and you told us that you were feeling like this #{new_chart[2][1]} time(s)".blue
             rescue
-                puts "You don't have enough inputs to create a Top3, share more how you are feeling and try again".colorize(:red)
+                puts "You don't have enough inputs to create a Top3, share more how you are feeling and try again".red
             end
         when "Table"
             table = TTY::Table.new(["Mood", "Amount"], new_chart)
-            puts table.render(:basic)
+            puts table.render(:basic).light_cyan
         when "Back"
         end
     when "Diary"
@@ -169,27 +175,30 @@ until quit
             end
             puts "Could you please input the number you wish to update:"
             update_post = gets.chomp.to_i
-            post = {
-                user: user[:username],
-                date: posts[update_post][1],
-                message: validate_input("Tell us your thoughts:", "You must enter a message")
-            }
-            posts.push([
-                user[:username],
-                post[:date],
-                post[:message]
-            ])
+            begin
+                post = {
+                    user: user[:username],
+                    date: posts[update_post][1],
+                    message: validate_input("Tell us your thoughts:", "You must enter a message")
+                }
+                posts.push([
+                    user[:username],
+                    post[:date],
+                    post[:message]
+                ])
 
-            posts.delete_at(update_post)
-            
-            all_posts.concat(posts)
+                posts.delete_at(update_post)
+                
+                all_posts.concat(posts)
 
-            CSV.open("diary.csv", "w") do |csv|
-                all_posts.each do |post|
-                    csv << [post[0],post[1],post[2]]
+                CSV.open("diary.csv", "w") do |csv|
+                    all_posts.each do |post|
+                        csv << [post[0],post[1],post[2]]
+                    end
                 end
+            rescue
+                puts "Invalid entry, try again"
             end
-
         when "Delete"
             posts = []
             all_posts = []
@@ -220,6 +229,7 @@ until quit
         end
     when "Exit"
         quit = true
+        system "clear"
     end
 end
 
