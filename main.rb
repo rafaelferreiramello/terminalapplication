@@ -1,5 +1,7 @@
 require "csv"
 require "tty-prompt"
+require "colorize"
+require "tty-table"
 
 quit = false 
 
@@ -89,12 +91,12 @@ until quit
     when "Mood"
         mood_input = prompt.select("how are you feeling today?", %w(Cheerful Reflective Melancholy Angry Lonely))
         mood = mood_input.to_sym
-        puts mood_feedback[mood].sample
+        puts mood_feedback[mood].sample.colorize(:magenta)
         CSV.open("moods.csv", "a") do |csv|
             csv << [user[:username],mood_input]
         end
     when "Chart"
-        chart_input = prompt.select("What would you like to check?", %w(Top1 Top3 Back))
+        chart_input = prompt.select("What would you like to check?", %w(Top1 Top3 Table Back))
         charts = {}
         moods = CSV.open("moods.csv", "r").read
         moods.each do |mood| 
@@ -107,18 +109,21 @@ until quit
         case chart_input
         when "Top1"
             begin 
-                puts "Your most frequently mood is #{new_chart[0][0]} and you told us that you were feeling like this #{new_chart[0][1]} time(s)"
+                puts "Your most frequently mood is #{new_chart[0][0]} and you told us that you were feeling like this #{new_chart[0][1]} time(s)".colorize(:light_blue)
             rescue
-                puts "You don't have enough inputs to create a Top1, share more how you are feeling and try again"
+                puts "You don't have enough inputs to create a Top1, share more how you are feeling and try again".colorize(:red)
             end        
         when "Top3" 
             begin 
-                puts "Your most frequently mood is #{new_chart[0][0]} and you told us that you were feeling like this #{new_chart[0][1]} time(s)"
-                puts "Your second most frequently mood is #{new_chart[1][0]} and you told us that you were feeling like this #{new_chart[1][1]} time(s)"
-                puts "Your third most frequently mood is #{new_chart[2][0]} and you told us that you were feeling like this #{new_chart[2][1]} time(s)"
+                puts "Your most frequently mood is #{new_chart[0][0]} and you told us that you were feeling like this #{new_chart[0][1]} time(s)".colorize(:cyan)
+                puts "Your second most frequently mood is #{new_chart[1][0]} and you told us that you were feeling like this #{new_chart[1][1]} time(s)".colorize(:light_blue)
+                puts "Your third most frequently mood is #{new_chart[2][0]} and you told us that you were feeling like this #{new_chart[2][1]} time(s)".colorize(:blue)
             rescue
-                puts "You don't have enough inputs to create a Top3, share more how you are feeling and try again"
+                puts "You don't have enough inputs to create a Top3, share more how you are feeling and try again".colorize(:red)
             end
+        when "Table"
+            table = TTY::Table.new(["header1","header2"])
+            table << new_chart
         when "Back"
         end
     when "Diary"
@@ -138,7 +143,6 @@ until quit
                 post[:date],
                 post[:message]
             ])
-            p posts
             CSV.open("diary.csv", "a") do |csv|
                 csv << [user[:username],post[:date],post[:message]]
             end
