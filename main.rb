@@ -121,10 +121,9 @@ until quit
             rescue
                 puts "You don't have enough inputs to create a Top3, share more how you are feeling and try again".colorize(:red)
             end
-        # when "Table"
-        #     p new_chart
-        #     table = TTY::Table.new(["header1","header2"], ["a1", "a1"])
-        #     puts table.render(:basic)
+        when "Table"
+            table = TTY::Table.new(["Mood", "Amount"], new_chart)
+            puts table.render(:basic)
         when "Back"
         end
     when "Diary"
