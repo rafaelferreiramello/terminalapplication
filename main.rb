@@ -8,8 +8,6 @@ require_relative "./methods.rb"
 
 quit = false 
 
-prompt = TTY::Prompt.new
-
 mood_feedback =  {
     Cheerful: ["Life is 10% what happens to me and 90% of how I react to it", "Go the extra mile. It’s never crowded there", "Believe you can and you’re halfway there", "Keep your face always toward the sunshine – and shadows will fall behind you", "Make each day your masterpiece"],
     Reflective: ["If you want to lift yourself up, lift up someone else", "You get in life what you have the courage to ask for", "We can’t help everyone, but everyone can help someone", "You must be the change you wish to see in this world", "None of us is as smart as all of us"],
@@ -56,6 +54,7 @@ until quit
             puts "invalid option, try again"
         end
     end
+    prompt = TTY::Prompt.new
     menu = prompt.select("what would you like to do?", %w(Mood Chart Diary Exit))
     case menu
     when "Mood"
