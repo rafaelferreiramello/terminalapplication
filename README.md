@@ -18,7 +18,6 @@
 - [User Interaction & User Experience](###User-Interaction-&-User-Experience)
 - [Control Flow Diagram](###Control-Flow-Development)
 - [Implementation Plan](###Implementation-Plan)
-- [Testing](###Testing)
 - [Install](###Install)
 - [Usage](###Usage)
 - [Help](###Help)
@@ -137,6 +136,7 @@ Personal diary. User notes will be kept in a separate external text file that wi
 * TTY-Font
 * Pastel
 * Colorize
+* Test-Unit
 
 <br>
 
@@ -178,7 +178,7 @@ In the **“DELETE”** option, the same will occur as in the previous option, b
 
 **Control Flow Diagram**
 
-![Control Flow Diagram](./images/controlflow.jpg)
+![Control Flow Diagram](./docs/controlflow.jpg)
 
 <br>
 
@@ -196,21 +196,8 @@ In the **“DELETE”** option, the same will occur as in the previous option, b
 
 Screenshot of Trello Board on day before submission:
 
-![Trello Screenshot](./images/trello1.png)
-![Trello Screenshot](./images/trello2.png)
-
-<br>
-
-#
-### Testing
-
-<br>
-
-Two successful tests outputting using Rspec. Tested ability for the app to create a new class from a new_player instance.
-
-<br>
-
-![Rspec Tests Screenshot](./readme_elements/rspec_tests_screenshot.jpg)
+![Trello Screenshot](./docs/trello1.png)
+![Trello Screenshot](./docs/trello2.png)
 
 <br>
 

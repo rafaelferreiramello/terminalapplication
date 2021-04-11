@@ -1,3 +1,4 @@
+# gems and dependencies
 require "csv"
 require "tty-prompt"
 require "tty-table"
@@ -6,7 +7,7 @@ require "colorize"
 require "pastel"
 require_relative "./methods.rb"
 
-
+# Command Line Argument - Instructions on how to use the application
 if ARGV.include? "--help"
     puts "Here is how you use How You Doing?:"
     puts "Choose between login or signup"
@@ -21,17 +22,21 @@ if ARGV.include? "--help"
     exit
 end
 
+# clear terminal from previous command and display title
 clear_and_title
 
+# loop to put the functions together
 quit = false 
 user = {}
 until quit 
     until user != {}
         puts "Login or Signup?"
         input = gets.chomp.downcase
+        # signup
         if input == "signup"
             username, password = login_details()
             username_is_taken = find_user?(username)
+            # username doesn't exist in the database
             if username_is_taken == false
                 write_csv(username, password)
                 user[:username] = username
@@ -39,12 +44,15 @@ until quit
                 clear_and_title
                 puts "You are logged in".cyan
             else
+                # username exists in the database
                 clear_and_title
                 puts "Username taken, try again".red
             end
+        # login
         elsif input == "login"
             username, password = login_details()
             line = find_user?(username)
+            # username exists in the database check password
             if line
                 if line [1] == password
                     user[:username] = line[0]
@@ -53,23 +61,32 @@ until quit
                     puts "You are logged in".cyan
                 end 
             end
+            # username doesn't exist in the database
             if user == {}
                 clear_and_title
                 puts "Incorrect information, try again".red
             end
         else
+            # users who did not understand the instructions
             clear_and_title
             puts "Invalid option, try again".red
         end
     end
-    prompt = TTY::Prompt.new
-    menu = prompt.select("What would you like to do?", %w(Mood Chart Diary Exit))
+    # main menu
+    begin
+        prompt = TTY::Prompt.new
+        menu = prompt.select("What would you like to do?", %w(Mood Chart Diary Exit))
+    rescue
+        puts "You need to run in your terminal 'bundle install'."
+    end
+    # case loop to put together the features
     case menu
     when "Mood"
         clear_and_title
         mood_input = prompt.select("How are you feeling today?", %w(Cheerful Reflective Melancholy Angry Lonely))
         mood = mood_input.to_sym
         puts feedback_moods[mood].sample.colorize(:magenta)
+        # saving in the CSV file 
         CSV.open("moods.csv", "a") do |csv|
             csv << [user[:username],mood_input]
         end
@@ -78,13 +95,16 @@ until quit
         chart_input = prompt.select("What would you like to check?", %w(Top1 Top3 Table Back))
         charts = {}
         moods = CSV.open("moods.csv", "r").read
+        # counting the number of inputs, but only for the user's mood logged
         moods.each do |mood| 
             if mood[0] == user[:username]
                 charts[mood[1]] = 0 unless charts.include?(mood[1])
                 charts[mood[1]] += 1
             end
         end
+        # putting data in descending order
         new_chart = charts.sort_by {|k,v| v}.reverse
+        # error handling in case user does not have enough inputs for the feature
         case chart_input
         when "Top1"
             begin 
@@ -101,41 +121,52 @@ until quit
                 puts "You don't have enough inputs to create a Top3, share more how you are feeling and try again".red
             end
         when "Table"
-            table = TTY::Table.new(["Mood", "Amount"], new_chart)
-            puts table.render(:basic).light_cyan
+            begin 
+                table = TTY::Table.new(["Mood", "Amount"], new_chart)
+                puts table.render(:basic).light_cyan
+            rescue
+                puts "You don't have enough inputs to create a table, share more how you are feeling and try again".red
+            end    
         when "Back"
         end
     when "Diary"
         clear_and_title
         read_posts = CSV.open("diary.csv", "r").read
+        # setting time right now
         time = Time.new
         time = "#{time.day}/#{time.month}/#{time.year}"
         diary_input = prompt.select("What would you like to do?", %w(New Read Edit Delete Back))
         case diary_input
         when "New"
+            # setting what will be inside the post
             post = {
                 user: user[:username],
                 date: time,
                 message: validate_input("Tell us your thoughts:", "You must enter a message")
             }
+            # pushing to the array
             read_posts.push([
                 user[:username],
                 post[:date],
                 post[:message]
             ])
+            # appending to the CSV file
             CSV.open("diary.csv", "a") do |csv|
                 csv << [user[:username],post[:date],post[:message]]
             end
         when "Read"
+            # reading and displaying CSV file content
             read_posts.each do |post|
                     if post[0] == user[:username]
                         puts "#{post[1]} you were feeling this: #{post[2]}"
                     end
             end 
         when "Edit"
-            # get all user1 entries
+            # get all user's logged entries
             posts = []
+            # get all entries 
             all_posts = []
+            # identifying and pushing to the correct array
             read_posts.each do |post|
                     if post[0] == user[:username]
                         posts.push(post)
@@ -147,9 +178,12 @@ until quit
             posts.each_with_index do |post, index|
                 puts "#{index}. #{post[1]} - #{post[2]}"
             end
+            # get user input
             puts "Could you please input the number you wish to update:"
             update_post = gets.chomp.to_i
+            # error handling if user enters non-existent data
             begin
+                # new post
                 post = {
                     user: user[:username],
                     date: posts[update_post][1],
@@ -160,11 +194,11 @@ until quit
                     post[:date],
                     post[:message]
                 ])
-
+                # delete old one
                 posts.delete_at(update_post)
-                
+                # put arrays together
                 all_posts.concat(posts)
-
+                # write in the CSV file
                 CSV.open("diary.csv", "w") do |csv|
                     all_posts.each do |post|
                         csv << [post[0],post[1],post[2]]

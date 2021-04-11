@@ -15,3 +15,5 @@ gem "tty-table", "~> 0.12.0"
 gem "tty-font", "~> 0.5.0"
 
 gem "pastel", "~> 0.8.0"
+
+gem "test-unit", "~> 3.4"
