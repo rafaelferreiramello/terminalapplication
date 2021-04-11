@@ -208,7 +208,7 @@ Screenshot of Trello Board on day before submission:
 2. Open a terminal / CLI.
 3. Navigate to or create a directory you want "HOW YOU DOIN?" to be installed.
 4. Once in that directory, run ```$ git clone git@github.com:rafaelferreiramello/terminalapplication.git``` to clone a copy of "HOW YOU DOING?" into your computer.
-5. Before application can run, user must run ```$ bundle install``` 
+5. Before application can run, make sure you are inside the application directory and run ```$ bundle install``` 
 6. Make sure you are inside the application directory and run ```$ ./install_script.sh```
 
 <br>
